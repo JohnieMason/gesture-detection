@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 sequences = np.load('sequences.npy')
@@ -9,14 +8,15 @@ labels = np.load('labels.npy')
 
 X_train, X_test, y_train, y_test = train_test_split(sequences, labels, test_size=0.2, random_state=42)
 
-num_classes = 1
-model = Sequential([
-    LSTM(64, input_shape=(X_train.shape[1], X_train.shape[2])),
-    Dense(64, activation='relu'),
-    Dense(num_classes, activation='sigmoid')
+num_classes = 4
+model = tf.keras.models.Sequential([
+    tf.keras.layers.LSTM(64, input_shape=(X_train.shape[1], X_train.shape[2])),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dense(num_classes, activation='softmax')
 ])
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+print(model.summary())
 
 history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
