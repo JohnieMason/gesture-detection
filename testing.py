@@ -24,7 +24,7 @@ arr = []
 frame_count = 0
 
 # Define the labels for gesture detection
-labels = {0: "right-left", 1: "left-right", 2: "right-left", 3: "Up-Down"}
+labels = {0: "lr", 1: "rl", 2: "x"}
 
 def normalize_coordinates(arr, frame_width, frame_height):
     arr[:, 0] = arr[:, 0] / frame_width

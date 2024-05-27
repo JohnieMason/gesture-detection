@@ -8,7 +8,7 @@ labels = np.load('labels.npy')
 
 X_train, X_test, y_train, y_test = train_test_split(sequences, labels, test_size=0.2, random_state=42)
 
-num_classes = 4
+num_classes = 3  # As there are 3 gestures
 model = tf.keras.models.Sequential([
     tf.keras.layers.LSTM(64, input_shape=(X_train.shape[1], X_train.shape[2])),
     tf.keras.layers.Dense(64, activation='relu'),
@@ -32,4 +32,4 @@ plt.legend()
 plt.show()
 
 model.save("trained_model.keras")
-model.save_weights("trained_model_weights.weights.h5")
+model.save_weights("trained_model.weights.h5")
