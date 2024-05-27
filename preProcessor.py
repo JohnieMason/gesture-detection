@@ -72,8 +72,8 @@ def load_and_preprocess_data(file_path, frame_width=640, frame_height=480, max_l
     label_to_int = {label: i for i, label in enumerate(unique_labels)}
     labels = np.array([label_to_int[label] for label in labels])
 
-    num_classes = len(unique_labels)
-    num_classes = 4
+    # num_classes = len(unique_labels)
+    num_classes = 3
     labels = tf.keras.utils.to_categorical(labels, num_classes=num_classes)
 
     return sequences, labels

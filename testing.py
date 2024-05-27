@@ -24,7 +24,7 @@ arr = []
 frame_count = 0
 
 # Define the labels for gesture detection
-labels = {0: "Not Valid", 1: "Left-Right", 2: "Right-Left", 3: "Up-Down"}
+labels = {0: "right-left", 1: "left-right", 2: "right-left", 3: "Up-Down"}
 
 def normalize_coordinates(arr, frame_width, frame_height):
     arr[:, 0] = arr[:, 0] / frame_width
@@ -99,6 +99,8 @@ while cap.isOpened():
             # Predict the gesture
             prediction = model.predict(data)
             gesture_label = labels[np.argmax(prediction)]
+            print(prediction)
+            print(gesture_label)
 
             # Display the predicted gesture
             cv2.putText(frame, f'Gesture: {gesture_label}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),

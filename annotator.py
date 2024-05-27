@@ -16,7 +16,7 @@ with open("coordinates_data.txt", "r") as f:
         plt.xlim([0, 640])
         plt.show()
         inp = input('Enter the gesture: ')
-        arrs[-1] += f", right-left\n"
+        arrs[-1] += f", {inp}\n"
 
 with open("coordinates_data.txt", "w") as f:
     for line in arrs:
