@@ -54,8 +54,9 @@ def load_and_preprocess_data(file_path, frame_width=640, frame_height=480, max_l
                     continue
                 arr = np.array([[item[0], item[1]] for item in sequence], dtype=np.float32)
                 arr = normalize_coordinates(arr, frame_width, frame_height)
-                sequences.append(arr)
-                labels.append(label)
+                if label != 'x':
+                    sequences.append(arr)
+                    labels.append(label)
 
             except (json.JSONDecodeError, IndexError) as e:
                 print(f"Error parsing line: {line}\nError: {e}")
@@ -73,7 +74,7 @@ def load_and_preprocess_data(file_path, frame_width=640, frame_height=480, max_l
     labels = np.array([label_to_int[label] for label in labels])
 
     # num_classes = len(unique_labels)
-    num_classes = 3
+    num_classes = 2
     labels = tf.keras.utils.to_categorical(labels, num_classes=num_classes)
 
     return sequences, labels

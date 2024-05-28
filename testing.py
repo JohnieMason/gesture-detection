@@ -10,7 +10,7 @@ model = load_model("trained_model.keras")
 
 # Initialize MediaPipe hands
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.3)
+hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5)
 
 # Open default camera
 cap = cv2.VideoCapture(0)

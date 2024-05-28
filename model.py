@@ -6,7 +6,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.SimpleRNN(units=10, return_sequences=False),
     tf.keras.layers.Dropout(0.2),
     # 3 Gestures for now
-    tf.keras.layers.Dense(3, activation='softmax'),
+    tf.keras.layers.Dense(2, activation='softmax'),
 ])
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
