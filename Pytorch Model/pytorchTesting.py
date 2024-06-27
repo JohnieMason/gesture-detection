@@ -22,7 +22,7 @@ class PyTorchModel(nn.Module):
         return x
 
 pytorch_model = PyTorchModel()
-pytorch_model.load_state_dict(torch.load('pytorch_model_trained.pth'))
+pytorch_model.load_state_dict(torch.load('pytorch_model.pth'))
 pytorch_model.eval()
 
 mp_hands = mp.solutions.hands

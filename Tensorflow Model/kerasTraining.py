@@ -10,8 +10,7 @@ labels = np.load('labels.npy')
 # Split the data into training and testing sets (80% training, 20% testing)
 X_train, X_test, y_train, y_test = train_test_split(sequences, labels, test_size=0.2, random_state=42)
 
-# Define the number of gesture classes
-num_classes = 4  # There are 4 gesture classes
+num_classes = 4  # There are 4 gestures
 
 # Create the LSTM-based neural network model
 model = tf.keras.models.Sequential([
@@ -43,5 +42,5 @@ plt.legend()
 plt.show()
 
 # Save the trained model and its weights
-model.save("trained_model.keras")
-model.save_weights("trained_model.weights.h5")
+model.save("trained_keras_model.keras")
+model.save_weights("trained_keras_model.weights.h5")

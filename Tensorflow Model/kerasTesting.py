@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 import json
 
 # Load the pre-trained Keras model for gesture recognition
-model = load_model("trained_model.keras")
+model = load_model("trained_keras_model.keras")
 
 # Initialize MediaPipe hands module for hand tracking
 mp_hands = mp.solutions.hands
