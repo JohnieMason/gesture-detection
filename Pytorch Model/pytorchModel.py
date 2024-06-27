@@ -19,5 +19,4 @@ class SimpleRNNModel(nn.Module):
         x = self.softmax(x)
         return x
 
-# Create an instance of the PyTorch model
 pytorch_model = SimpleRNNModel()

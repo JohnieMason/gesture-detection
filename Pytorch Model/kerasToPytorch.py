@@ -3,7 +3,6 @@ import torch.nn as nn
 import tensorflow as tf
 import numpy as np
 
-# Define the PyTorch model
 class SimpleRNNModel(nn.Module):
     def __init__(self):
         super(SimpleRNNModel, self).__init__()
@@ -44,14 +43,11 @@ def transfer_weights(keras_layer, pytorch_layer, rnn_layer=False):
         pytorch_layer.weight.data = torch.from_numpy(np.transpose(weights[0])).float()
         pytorch_layer.bias.data = torch.from_numpy(weights[1]).float()
 
-# Transfer weights for each layer
 transfer_weights(keras_model.layers[0], pytorch_model.rnn1, rnn_layer=True)
 transfer_weights(keras_model.layers[1], pytorch_model.rnn2, rnn_layer=True)
 
-# Dropout layer doesn't have weights, so we skip it
 transfer_weights(keras_model.layers[2], pytorch_model.fc)
 
-# Save the PyTorch model
 torch.save(pytorch_model.state_dict(), 'pytorch_model.pth')
 
 print("Model conversion complete. PyTorch model saved as 'pytorch_model.pth'")
