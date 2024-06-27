@@ -1,73 +1,71 @@
-import numpy as np
-from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-import torch.optim as optim
-import matplotlib.pyplot as plt
-from model import GestureRecognitionModel
+import numpy as np
+from sklearn.model_selection import train_test_split
 
-# Load the preprocessed sequences and labels from .npy files
-sequences = np.load('sequences.npy')
-labels = np.load('labels.npy')
+# Load preprocessed data
+sequences = np.load('sequences.npy')  # Load preprocessed sequences
+labels = np.load('labels.npy')  # Load preprocessed labels (one-hot encoded)
+
+# Convert to PyTorch tensors
+sequences = torch.tensor(sequences, dtype=torch.float32)
+labels = torch.tensor(np.argmax(labels, axis=1), dtype=torch.long)  # Convert one-hot labels to integer labels
 
 # Split the data into training and testing sets (80% training, 20% testing)
 X_train, X_test, y_train, y_test = train_test_split(sequences, labels, test_size=0.2, random_state=42)
 
-# Convert the data to PyTorch tensors
-X_train = torch.tensor(X_train, dtype=torch.float32)
-X_test = torch.tensor(X_test, dtype=torch.float32)
-y_train = torch.tensor(y_train, dtype=torch.float32)
-y_test = torch.tensor(y_test, dtype=torch.float32)
+# Define your PyTorch model class
+class PyTorchModel(nn.Module):
+    def __init__(self):
+        super(PyTorchModel, self).__init__()
+        self.rnn1 = nn.RNN(input_size=2, hidden_size=10, batch_first=True)
+        self.rnn2 = nn.RNN(input_size=10, hidden_size=10, batch_first=False)
+        self.dropout = nn.Dropout(0.2)
+        self.fc = nn.Linear(10, 4)  # Output size 4 for 4 gesture classes
 
-# Define the model, loss function, and optimizer
-model = GestureRecognitionModel()
+    def forward(self, x):
+        x, _ = self.rnn1(x)
+        x, _ = self.rnn2(x)
+        x = self.dropout(x)
+        x = self.fc(x[:, -1, :])  # Output after the last timestep
+        return x
+
+# Instantiate the model
+pytorch_model = PyTorchModel()
+
+# Define loss function and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-# Print the model summary
-print(model)
-
-# Define training parameters
-num_epochs = 10
-batch_size = 32
+optimizer = torch.optim.Adam(pytorch_model.parameters(), lr=0.001)
 
 # Training loop
-for epoch in range(num_epochs):
-    model.train()
-    for i in range(0, len(X_train), batch_size):
-        batch_x = X_train[i:i+batch_size]
-        batch_y = y_train[i:i+batch_size]
+epochs = 100
+for epoch in range(epochs):
+    pytorch_model.train()
+    optimizer.zero_grad()
 
-        # Debugging: Print shapes of tensors
-        print(f"Batch x shape: {batch_x.shape}")
-        print(f"Batch y shape: {batch_y.shape}")
+    # Forward pass
+    outputs = pytorch_model(X_train)
 
-        # Forward pass
-        outputs = model(batch_x)
-        loss = criterion(outputs, batch_y)
+    # Calculate loss
+    loss = criterion(outputs, y_train)
 
-        # Backward pass and optimization
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    # Backward pass and optimize
+    loss.backward()
+    optimizer.step()
 
-    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+    # Print progress (optional)
+    if (epoch + 1) % 10 == 0:
+        print(f'Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.4f}')
 
 # Evaluate the model on the testing data
-model.eval()
+pytorch_model.eval()  # Switch to evaluation mode
 with torch.no_grad():
-    correct = 0
-    total = 0
-    for i in range(0, len(X_test), batch_size):
-        batch_x = X_test[i:i+batch_size]
-        batch_y = y_test[i:i+batch_size]
-        outputs = model(batch_x)
-        _, predicted = torch.max(outputs.data, 1)
-        _, labels_max = torch.max(batch_y, 1)
-        total += batch_y.size(0)
-        correct += (predicted == labels_max).sum().item()
+    test_outputs = pytorch_model(X_test)
+    test_loss = criterion(test_outputs, y_test)
+    _, predicted = torch.max(test_outputs, 1)
+    accuracy = (predicted == y_test).sum().item() / y_test.size(0)
 
-    print(f"Test Accuracy: {100 * correct / total:.2f}%")
+print(f'Test Loss: {test_loss.item():.4f}, Test Accuracy: {accuracy:.4f}')
 
-# Save the trained model and its weights
-torch.save(model.state_dict(), "trained_model.pth")
+# Save the trained model
+torch.save(pytorch_model.state_dict(), 'pytorch_model_trained.pth')

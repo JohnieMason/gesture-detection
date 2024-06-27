@@ -1,21 +1,22 @@
 import torch
 import torch.nn as nn
 
-class GestureRecognitionModel(nn.Module):
+class PyTorchModel(nn.Module):
     def __init__(self):
-        super(GestureRecognitionModel, self).__init__()
-        self.lstm = nn.LSTM(input_size=3, hidden_size=64, batch_first=True)
-        self.dense1 = nn.Linear(64, 64)
-        self.dense2 = nn.Linear(64, 4)
-        self.relu = nn.ReLU()
-        self.softmax = nn.Softmax(dim=1)
+        super(PyTorchModel, self).__init__()
+        self.rnn1 = nn.RNN(input_size=2, hidden_size=10, batch_first=True)
+        self.rnn2 = nn.RNN(input_size=10, hidden_size=10, batch_first=False)
+        self.dropout = nn.Dropout(0.2)
+        self.fc1 = nn.Linear(10, 2)  # Adjusted to match the Keras Dense layer for 2 classes
+        self.fc2 = nn.Linear(10, 4)  # Output size 4 for 4 gesture classes as per Keras model
 
     def forward(self, x):
-        x, _ = self.lstm(x)
-        x = x[:, -1, :]
-        x = self.relu(self.dense1(x))
-        x = self.softmax(self.dense2(x))
-        return x
+        x, _ = self.rnn1(x)
+        x, _ = self.rnn2(x)
+        x = self.dropout(x)
+        x1 = self.fc1(x[:, -1, :])  # Assuming you want output after the last timestep
+        x2 = self.fc2(x[:, -1, :])  # Assuming you want output after the last timestep
+        return x1, x2
 
-model = GestureRecognitionModel()
-print(model)
+# Create an instance of the PyTorch model
+pytorch_model = PyTorchModel()
