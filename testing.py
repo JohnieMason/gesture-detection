@@ -28,7 +28,13 @@ arr = []
 frame_count = 0
 
 # Define gesture labels corresponding to model output
-labels = {0: "lr", 1: "rl", 2: "x"}
+labels = {0: "du", 1: "lr", 2: "rl", 3: "ud"}
+
+# Flag to track if hand is detected
+hand_detected = False
+
+# Confidence threshold for valid gesture
+confidence_threshold = 0.7
 
 # Function to normalize landmark coordinates to frame dimensions
 def normalize_coordinates(arr, frame_width, frame_height):
@@ -76,10 +82,6 @@ while cap.isOpened():
 
     # Check if hand landmarks are detected
     if results.multi_hand_landmarks:
-        # Increment frame count and apply modulo to control data collection frequency
-        frame_count += 1
-        frame_count %= 5
-
         # Get landmarks of the first detected hand
         hand_landmarks = results.multi_hand_landmarks[0]
 
@@ -99,18 +101,25 @@ while cap.isOpened():
         # Calculate center coordinates of the bounding box
         center_x = brect[0] + brect[2] // 2
         center_y = brect[1] + brect[3] // 2
-        frame_time = time.time_ns() / 1e6
-
-        # Store center coordinates and timestamp if frame count condition is met
-        if frame_count == 0:
-            arr.append([center_x, center_y, frame_time])
 
         # Display center coordinates on the frame
         cv2.putText(frame, f'Center: ({center_x}, {center_y})', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),
                     2, cv2.LINE_AA)
 
-        # Prepare data for gesture prediction after collecting sufficient data points
-        if len(arr) >= 5:
+        # If hand is detected, start collecting data
+        if not hand_detected:
+            hand_detected = True
+            print("Hand detected. Collecting data...")
+
+        # Store center coordinates and timestamp
+        arr.append([center_x, center_y, time.time_ns() / 1e6])
+
+    else:
+        # If hand was detected and is now not detected, process and predict gesture
+        if hand_detected and len(arr) > 0:
+            print("Hand no longer detected. Preprocessing and predicting...")
+
+            # Normalize and preprocess data
             data = np.array(arr)
             data = normalize_coordinates(data, frame_width, frame_height)
             data = redistribute_values(data, 24)
@@ -119,16 +128,19 @@ while cap.isOpened():
 
             # Predict gesture using the loaded model
             prediction = model.predict(data)
-            gesture_label = labels[np.argmax(prediction)]
-            print(prediction)
-            print(gesture_label)
 
-            # Display predicted gesture label on the frame
-            cv2.putText(frame, f'Gesture: {gesture_label}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),
-                        2, cv2.LINE_AA)
+            # Check confidence level
+            confidence = np.max(prediction)
+            if confidence >= confidence_threshold:
+                gesture_label = labels[np.argmax(prediction)]
+            else:
+                gesture_label = "not a valid gesture"
 
-            # Clear the data collection buffer
+            print("Prediction:", gesture_label, " Confidence:", confidence)
+
+            # Reset data collection
             arr.clear()
+            hand_detected = False
 
     # Display the annotated frame with detected landmarks and predicted gesture
     cv2.imshow('Hand Tracking', frame)
