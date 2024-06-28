@@ -41,6 +41,12 @@ plt.ylabel('Accuracy')
 plt.legend()
 plt.show()
 
-# Save the trained model and its weights
-model.save("trained_keras_model.keras")
+model.save("trained_keras_model.h5")
 model.save_weights("trained_keras_model.weights.h5")
+
+converter = tf.lite.TFLiteConverter.from_saved_model("trained_keras_model.h5")
+tflite_model = converter.convert()
+
+# Save the model.
+with open('model.tflite', 'wb') as f:
+    f.write(tflite_model)

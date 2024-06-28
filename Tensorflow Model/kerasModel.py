@@ -14,9 +14,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(4, activation='softmax'),
 ])
 
-# Model compilation
 # Using Adam optimizer and categorical cross-entropy loss
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-# Print a summary of the model
 print(model.summary())
