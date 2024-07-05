@@ -21,7 +21,7 @@ arr = []
 frame_count = 0
 
 # Open a file coordinates_data.txt for writing hand coordinates
-with open('coordinates_data.txt', 'w') as f:
+with open('coordinates_data1.txt', 'w') as f:
     # Continuously capture frames from the webcam
     while cap.isOpened():
         ret, frame = cap.read()

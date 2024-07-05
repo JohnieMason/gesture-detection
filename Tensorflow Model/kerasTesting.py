@@ -1,9 +1,16 @@
 import cv2
+import socket
 import mediapipe as mp
 import numpy as np
 import time
 from tensorflow.keras.models import load_model
 import json
+#Creating a socket
+soc=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+soc.bind(("192.168.137.1", 12345))
+soc.listen()
+print("waiting for connection.....")
+soc2, _ =soc.accept()
 
 # Load the pre-trained Keras model for gesture recognition
 model = load_model("trained_keras_model.keras")
@@ -137,6 +144,8 @@ while cap.isOpened():
                 gesture_label = "not a valid gesture"
 
             print("Prediction:", gesture_label, " Confidence:", confidence)
+            #editing, putting an enter, then send all to the pi
+            soc2.sendall(f"{gesture_label}\n".encode())
 
             # Reset data collection
             arr.clear()
@@ -149,6 +158,8 @@ while cap.isOpened():
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+soc2.close()
+soc.close()
 # Release the video capture and close all OpenCV windows
 cap.release()
 cv2.destroyAllWindows()
